@@ -223,22 +223,26 @@ export default function RestaurantDetailPage() {
       </main>
 
       {cartCount > 0 && (
-        <footer className="fixed bottom-4 left-4 right-4 z-20 drop-shadow-lg">
-            <div className="bg-primary text-primary-foreground p-3 shadow-lg rounded-2xl flex justify-between items-center container mx-auto">
-              <div className="flex items-center gap-3">
-                <div className="bg-background/20 p-2 rounded-full">
-                  <ChefHat className="text-primary-foreground" />
+        <footer className="fixed bottom-4 left-0 right-0 z-20">
+          <div className="container mx-auto px-4">
+            <Link href="/dashboard/checkout" passHref>
+              <div className="bg-primary text-primary-foreground p-3 shadow-lg rounded-2xl flex justify-between items-center w-full hover:bg-primary/90 transition-colors cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className="bg-background/20 p-2 rounded-full">
+                    <ChefHat className="text-primary-foreground" />
+                  </div>
+                  <div className="text-sm">
+                    <p>{cartCount} item | Diantar dari {tenant.name}</p>
+                    <p className="font-bold">{formatPrice(cartTotal)}</p>
+                  </div>
                 </div>
-                <div className="text-sm">
-                  <p>{cartCount} item | Diantar dari {tenant.name}</p>
-                  <p className="font-bold">{formatPrice(cartTotal)}</p>
+                <div className="relative bg-background/20 p-2 rounded-xl">
+                  <ShoppingCart />
+                  <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 justify-center p-0">{cartCount}</Badge>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" className="relative bg-background/20 hover:bg-background/30 rounded-xl h-12 w-12">
-                <ShoppingCart />
-                <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0">{cartCount}</Badge>
-              </Button>
-            </div>
+            </Link>
+          </div>
         </footer>
       )}
 

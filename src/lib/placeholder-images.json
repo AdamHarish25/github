@@ -37,19 +37,13 @@
       "imageHint": "grilled chicken"
     },
     {
-      "id": "chicken-katsu-meal",
-      "description": "A plate of chicken katsu with rice and salad.",
-      "imageUrl": "https://images.unsplash.com/photo-1626083013493-2951646272b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjaGlja2VuJTIwa2F0c3V8ZW58MHx8fHwxNzY1NzU4MjczfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "chicken katsu"
-    },
-    {
       "id": "combo-chicken-meal",
       "description": "A bowl of teriyaki chicken.",
       "imageUrl": "https://imgs.search.brave.com/Cgv2VmUsF3uwibc6aKs_edylUK_FgDXLXzqUuuDY1qk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTM5/MzUzNjE5MS9waG90/by9mcmllZC1jaGlj/a2VuLW92ZXItcmlj/ZS10ZXJpeWFraS13/aXRoLXJpY2UtaW4t/Ym93bC5qcGc_cz02/MTJ4NjEyJnc9MCZr/PTIwJmM9VkkwTjJG/Uk8zTXhpenYxcFpy/YmFkQnhWTEk3QURo/VzRZWUhNT2daVEJ4/WT0",
       "imageHint": "teriyaki chicken"
     },
     {
-      "id": "chicken-katsu-pack",
+      "id": "chicken-katsu-meal",
       "description": "A bowl of Chicken Katsu.",
       "imageUrl": "https://imgs.search.brave.com/ArnPWGIutSuwPvgjvvrBnyZbjO2e3hBOmcXE_69A46k/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bWlnaHR5bXJzLmNv/bS93cC1jb250ZW50/L3VwbG9hZHMvY2hp/Y2tlbi1rYXRzdS1i/b3dsLWhvcml6Lmpw/Zw",
       "imageHint": "Chicken Katsu Family Pack"
