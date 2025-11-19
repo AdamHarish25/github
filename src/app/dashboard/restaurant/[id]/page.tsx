@@ -17,7 +17,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -87,8 +87,18 @@ export default function RestaurantDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [cartCount, setCartCount] = useState(1);
   const [cartTotal, setCartTotal] = useState(25000);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const tenant = tenants.find((t) => t.id === id);
+
+  const filteredMenuItems = useMemo(() => {
+    if (!searchQuery) {
+      return menuItems;
+    }
+    return menuItems.filter((item) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
 
   if (!tenant) {
     return <div>Restaurant not found</div>;
@@ -127,8 +137,10 @@ export default function RestaurantDetailPage() {
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Search"
+              placeholder="Search in Rustic Grill"
               className="pl-10 bg-muted border-none focus-visible:ring-primary"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <Button variant="ghost" size="icon" className="relative">
@@ -187,37 +199,43 @@ export default function RestaurantDetailPage() {
             Best Sellers <Flame className="h-6 w-6 text-orange-500" />
           </h2>
           <div className="space-y-4">
-            {menuItems.map((item) => (
-              <Card key={item.id} className="overflow-hidden">
-                <CardContent className="p-4 flex items-center gap-4">
-                  <div className="flex-grow">
-                    <h3 className="font-semibold">{item.name}</h3>
-                    <p className="text-muted-foreground text-sm">{item.description}</p>
-                    <p className="font-semibold mt-2">{formatPrice(item.price)}</p>
-                  </div>
-                  <div className="flex-shrink-0 flex flex-col items-center gap-2">
-                    {item.image && (
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={80}
-                        height={80}
-                        className="rounded-xl object-cover h-20 object-center"
-                        data-ai-hint={item.imageHint}
-                      />
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => handleOpenSheet(item)}
-                    >
-                      Tambah
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {filteredMenuItems.length > 0 ? (
+              filteredMenuItems.map((item) => (
+                <Card key={item.id} className="overflow-hidden">
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className="flex-grow">
+                      <h3 className="font-semibold">{item.name}</h3>
+                      <p className="text-muted-foreground text-sm">{item.description}</p>
+                      <p className="font-semibold mt-2">{formatPrice(item.price)}</p>
+                    </div>
+                    <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                      {item.image && (
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          width={80}
+                          height={80}
+                          className="rounded-xl object-cover h-20 w-20 object-center"
+                          data-ai-hint={item.imageHint}
+                        />
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => handleOpenSheet(item)}
+                      >
+                        Tambah
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+                <div className="text-center py-10">
+                    <p className="text-muted-foreground">No menu items found for "{searchQuery}".</p>
+                </div>
+            )}
           </div>
         </section>
       </main>
@@ -232,7 +250,7 @@ export default function RestaurantDetailPage() {
                     <ChefHat className="text-primary-foreground" />
                   </div>
                   <div className="text-sm">
-                    <p>{cartCount} item | Diantar dari {tenant.name}</p>
+                    <p>{cartCount === 1 ? cartCount + " Item" : cartCount + " Items"}  | Will be ship to you from <b>{tenant.name}</b></p>
                     <p className="font-bold">{formatPrice(cartTotal)}</p>
                   </div>
                 </div>
