@@ -13,7 +13,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,21 +31,9 @@ const paymentMethods = [
 ];
 
 export default function CheckoutPage() {
-  const { cart, updateCartQuantity, cartTotal, formatPrice, clearCart } = useCart();
+  const { cart, updateCartQuantity, cartTotal, formatPrice } = useCart();
   const [selectedPayment, setSelectedPayment] = useState('qris');
   const router = useRouter();
-
-  // The checkout page needs to know about the items.
-  // We'll pass the cart from the context to this page's state.
-  // This is because the checkout page itself can modify quantities,
-  // and we might not want those changes to be global until payment.
-  // For now, we'll directly use the global cart state.
-  const [cartItems, setCartItems] = useState(cart);
-  
-  useEffect(() => {
-    setCartItems(cart);
-  }, [cart]);
-
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
     updateCartQuantity(id, newQuantity);
@@ -53,9 +41,7 @@ export default function CheckoutPage() {
 
   const handlePayNow = () => {
     // Here you would typically process the payment.
-    // For now, we'll just clear the cart and redirect.
-    // clearCart(); 
-    // We might want to persist the cart for the success page, so commenting this out.
+    // We will just redirect to the success page for now.
     router.push('/dashboard/checkout/success');
   };
 
@@ -89,7 +75,7 @@ export default function CheckoutPage() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {cartItems.map((item) => (
+              {cart.map((item) => (
                 <div key={item.id} className="flex items-center gap-4">
                   {item.image && (
                     <Image
