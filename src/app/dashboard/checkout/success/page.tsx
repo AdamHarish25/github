@@ -2,20 +2,25 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { useCart } from '@/context/cart-context';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function PaymentSuccessPage() {
-  const { cart, cartTotal, formatPrice, clearCart } = useCart();
+  const { clearCart } = useCart();
+  const [tableNumber, setTableNumber] = useState('');
 
   useEffect(() => {
+    // Generate random table number on the client side to avoid hydration mismatch
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+    const randomNumber = Math.floor(Math.random() * 10) + 1;
+    setTableNumber(`${randomLetter}${randomNumber}`);
+
     // Clear the cart when the component mounts
     const timer = setTimeout(() => {
       clearCart();
-    }, 500); // give a small delay to ensure cart is displayed before clearing
+    }, 500);
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,28 +103,16 @@ export default function PaymentSuccessPage() {
         
         <h1 className="text-3xl font-bold text-foreground">Payment Success</h1>
         <p className="text-muted-foreground mt-2 mb-8">
-          We are preparing your order and it will be delivered to <br /> your table shortly. Thank you!
+          We are preparing your order and it will be delivered to you shortly. Thank you!
         </p>
 
-        {cart.length > 0 && (
-            <Card className="text-left bg-accent/50 border-none shadow-none">
-            <CardHeader>
-                <CardTitle className="text-center text-primary font-semibold">Your order</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-                {cart.map((item) => (
-                <div key={item.id} className="flex justify-between items-center text-sm">
-                    <p className="text-muted-foreground">{item.name} {item.quantity}x</p>
-                    <p className="font-medium text-foreground">{formatPrice(item.price)}</p>
-                </div>
-                ))}
-                <Separator className="my-4 bg-border/50"/>
-                <div className="flex justify-between items-center font-semibold text-base">
-                <p className="text-muted-foreground">Total Amount</p>
-                <p className="text-foreground">{formatPrice(cartTotal)}</p>
-                </div>
-            </CardContent>
-            </Card>
+        {tableNumber ? (
+            <div className="bg-accent/50 border-none shadow-none rounded-lg p-6 my-8">
+                <p className="text-muted-foreground">Your table is booked on</p>
+                <p className="text-4xl font-bold text-primary tracking-wider">{tableNumber}</p>
+            </div>
+        ) : (
+             <div className="bg-accent/50 border-none shadow-none rounded-lg p-6 my-8 animate-pulse h-28 w-full"></div>
         )}
 
         <Link href="/dashboard" passHref className='mt-8 block'>
