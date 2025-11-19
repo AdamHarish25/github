@@ -33,7 +33,7 @@
     {
       "id": "chicken-grill-meal",
       "description": "A plate of grilled chicken with vegetables.",
-      "imageUrl": "https://images.unsplash.com/photo-1606041991408-33d360855246?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjaGlja2VuJTIwZ3JpbGwlMjBtZWFsfGVufDB8fHx8MTc2NTc1ODI1MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://imgs.search.brave.com/lCaezozpjsvqGLI7bU1G8u9dmPVJQIEVaBdrU6lbuRQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/dGFzdGVjdXJpb3Vz/LmNvbS93cC1jb250/ZW50L3VwbG9hZHMv/MjAyNS8wNi9iYnEt/Y2hpY2tlbi1yaWNl/LXRvcHBpbmdzLnBu/Zw",
       "imageHint": "grilled chicken"
     },
     {
@@ -45,8 +45,14 @@
     {
       "id": "combo-chicken-meal",
       "description": "A bowl of teriyaki chicken.",
-      "imageUrl": "https://images.unsplash.com/photo-1598514983318-2f64f1638890?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0ZXJpeWFraSUyMGNoaWNrZW58ZW58MHx8fHwxNzY1NzU4MzA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://imgs.search.brave.com/Cgv2VmUsF3uwibc6aKs_edylUK_FgDXLXzqUuuDY1qk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTM5/MzUzNjE5MS9waG90/by9mcmllZC1jaGlj/a2VuLW92ZXItcmlj/ZS10ZXJpeWFraS13/aXRoLXJpY2UtaW4t/Ym93bC5qcGc_cz02/MTJ4NjEyJnc9MCZr/PTIwJmM9VkkwTjJG/Uk8zTXhpenYxcFpy/YmFkQnhWTEk3QURo/VzRZWUhNT2daVEJ4/WT0",
       "imageHint": "teriyaki chicken"
+    },
+    {
+      "id": "chicken-katsu-pack",
+      "description": "A bowl of Chicken Katsu.",
+      "imageUrl": "https://imgs.search.brave.com/ArnPWGIutSuwPvgjvvrBnyZbjO2e3hBOmcXE_69A46k/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/bWlnaHR5bXJzLmNv/bS93cC1jb250ZW50/L3VwbG9hZHMvY2hp/Y2tlbi1rYXRzdS1i/b3dsLWhvcml6Lmpw/Zw",
+      "imageHint": "Chicken Katsu Family Pack"
     }
   ]
 }

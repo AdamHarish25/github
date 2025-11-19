@@ -8,16 +8,30 @@ import {
   ShoppingCart,
   User as UserIcon,
   ChefHat,
+  Heart,
+  AlertTriangle,
+  Share2,
+  Minus,
+  Plus,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 
 const tenants = [
   {
@@ -38,16 +52,16 @@ const menuItems = [
     id: '1',
     name: 'Paket Chicken Grill',
     description: 'Nasi / Kentang + Ayam Grill + Veggies + Mushroom / Cheese Sauce',
-    price: '25.000',
+    price: 25000,
     image: PlaceHolderImages.find((img) => img.id === 'chicken-grill-meal')
       ?.imageUrl,
-    imageHint: 'chicken grill meal',
+    imageHint: 'grilled chicken',
   },
   {
     id: '2',
     name: 'Paket Chicken Katsu',
     description: 'Nasi / Kentang + Chicken Katsu + Veggies + Mushroom / Cheese Sauce',
-    price: '25.000',
+    price: 25000,
     image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-meal')
     ?.imageUrl,
     imageHint: 'chicken katsu',
@@ -56,22 +70,50 @@ const menuItems = [
     id: '3',
     name: 'Paket Combo Double Chicken',
     description: 'Nasi / Kentang + Chichken Teriyaki + Chicken Crispy + Mushroom / Cheese Sauce',
-    price: '25.000',
+    price: 25000,
     image: PlaceHolderImages.find((img) => img.id === 'combo-chicken-meal')
       ?.imageUrl,
     imageHint: 'teriyaki chicken',
   },
 ];
 
+type MenuItem = typeof menuItems[0];
+
 export default function RestaurantDetailPage() {
   const params = useParams();
   const { id } = params;
+
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [cartCount, setCartCount] = useState(1);
+  const [cartTotal, setCartTotal] = useState(25000);
 
   const tenant = tenants.find((t) => t.id === id);
 
   if (!tenant) {
     return <div>Restaurant not found</div>;
   }
+
+  const handleOpenSheet = (item: MenuItem) => {
+    setSelectedItem(item);
+    setQuantity(1);
+  };
+
+  const handleAddToCart = () => {
+    if (selectedItem) {
+      setCartCount(cartCount + quantity);
+      setCartTotal(cartTotal + selectedItem.price * quantity);
+      setSelectedItem(null);
+    }
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
 
   return (
     <div className="bg-background min-h-screen pb-32">
@@ -91,12 +133,14 @@ export default function RestaurantDetailPage() {
           </div>
           <Button variant="ghost" size="icon" className="relative">
             <ShoppingCart className="h-6 w-6" />
-            <Badge
-              variant="destructive"
-              className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0"
-            >
-              1
-            </Badge>
+            {cartCount > 0 && (
+              <Badge
+                variant="destructive"
+                className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0"
+              >
+                {cartCount}
+              </Badge>
+            )}
           </Button>
           <Button variant="ghost" size="icon">
             <UserIcon className="h-6 w-6" />
@@ -149,7 +193,7 @@ export default function RestaurantDetailPage() {
                   <div className="flex-grow">
                     <h3 className="font-semibold">{item.name}</h3>
                     <p className="text-muted-foreground text-sm">{item.description}</p>
-                    <p className="font-semibold mt-2">{item.price}</p>
+                    <p className="font-semibold mt-2">{formatPrice(item.price)}</p>
                   </div>
                   <div className="flex-shrink-0 flex flex-col items-center gap-2">
                     {item.image && (
@@ -158,11 +202,16 @@ export default function RestaurantDetailPage() {
                         alt={item.name}
                         width={80}
                         height={80}
-                        className="rounded-md object-cover"
+                        className="rounded-xl object-cover h-20 object-center"
                         data-ai-hint={item.imageHint}
                       />
                     )}
-                    <Button variant="outline" size="sm" className="w-full">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => handleOpenSheet(item)}
+                    >
                       Tambah
                     </Button>
                   </div>
@@ -173,23 +222,84 @@ export default function RestaurantDetailPage() {
         </section>
       </main>
 
-      <footer className="fixed bottom-4 left-4 right-4 z-20 drop-shadow-lg">
-          <div className="bg-primary text-primary-foreground p-3 shadow-lg rounded-2xl flex justify-between items-center container mx-auto">
-            <div className="flex items-center gap-3">
-              <div className="bg-background/20 p-2 rounded-full">
-                <ChefHat className="text-primary-foreground" />
+      {cartCount > 0 && (
+        <footer className="fixed bottom-4 left-4 right-4 z-20 drop-shadow-lg">
+            <div className="bg-primary text-primary-foreground p-3 shadow-lg rounded-2xl flex justify-between items-center container mx-auto">
+              <div className="flex items-center gap-3">
+                <div className="bg-background/20 p-2 rounded-full">
+                  <ChefHat className="text-primary-foreground" />
+                </div>
+                <div className="text-sm">
+                  <p>{cartCount} item | Diantar dari {tenant.name}</p>
+                  <p className="font-bold">{formatPrice(cartTotal)}</p>
+                </div>
               </div>
-              <div className="text-sm">
-                <p>1 item | Diantar dari {tenant.name}</p>
-                <p className="font-bold">Rp 25.000</p>
+              <Button variant="ghost" size="icon" className="relative bg-background/20 hover:bg-background/30 rounded-xl h-12 w-12">
+                <ShoppingCart />
+                <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0">{cartCount}</Badge>
+              </Button>
+            </div>
+        </footer>
+      )}
+
+      {selectedItem && (
+        <Sheet open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
+          <SheetContent side="bottom" className="rounded-t-2xl p-0">
+            <div className="relative h-56">
+               {selectedItem.image && (
+                <Image
+                  src={selectedItem.image}
+                  alt={selectedItem.name}
+                  fill
+                  className="object-cover rounded-t-2xl"
+                  data-ai-hint={selectedItem.imageHint}
+                />
+              )}
+            </div>
+            <div className="p-6 pb-0">
+              <SheetHeader>
+                <SheetTitle className="text-2xl font-bold">{selectedItem.name}</SheetTitle>
+                <SheetDescription className="text-base">{selectedItem.description}</SheetDescription>
+              </SheetHeader>
+              <p className="text-2xl font-bold my-4">{formatPrice(selectedItem.price)}</p>
+              <div className="flex justify-center gap-2 mb-6">
+                <Button variant="outline" className="rounded-full">
+                  <Heart className="mr-2 h-4 w-4" /> Favorite
+                </Button>
+                <Button variant="outline" className="rounded-full">
+                  <AlertTriangle className="mr-2 h-4 w-4" /> Lapor
+                </Button>
+                <Button variant="outline" className="rounded-full">
+                  <Share2 className="mr-2 h-4 w-4" /> Bagikan
+                </Button>
               </div>
             </div>
-            <Button variant="ghost" size="icon" className="relative bg-background/20 hover:bg-background/30 rounded-xl h-12 w-12">
-              <ShoppingCart />
-              <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0">1</Badge>
-            </Button>
-          </div>
-      </footer>
+            <SheetFooter className="p-6 pt-0 flex-row justify-between items-center bg-background sticky bottom-0">
+              <div className="flex items-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="text-xl font-bold w-8 text-center">{quantity}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setQuantity(quantity + 1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+              </div>
+              <Button size="lg" className="flex-grow rounded-full text-base" onClick={handleAddToCart}>
+                Tambah Pembelian
+              </Button>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      )}
     </div>
   );
 }
