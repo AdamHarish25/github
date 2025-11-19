@@ -8,6 +8,7 @@ import {
   User as UserIcon,
 } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -138,24 +139,25 @@ export default function DashboardPage() {
           </h2>
           <div className="grid grid-cols-3 gap-4">
             {tenants.map((tenant) => (
-              <Card
-                key={tenant.id}
-                className="overflow-hidden text-center hover:shadow-lg transition-shadow cursor-pointer"
-              >
-                <CardContent className="p-4 flex flex-col items-center justify-center">
-                  {tenant.image && (
-                    <Image
-                      src={tenant.image}
-                      alt={tenant.name}
-                      width={80}
-                      height={80}
-                      className="rounded-full mb-2 object-cover"
-                       data-ai-hint={tenant.imageHint}
-                    />
-                  )}
-                  <p className="font-medium text-sm">{tenant.name}</p>
-                </CardContent>
-              </Card>
+              <Link href={`/dashboard/restaurant/${tenant.id}`} key={tenant.id} passHref>
+                <Card
+                  className="overflow-hidden text-center hover:shadow-lg transition-shadow cursor-pointer h-full"
+                >
+                  <CardContent className="p-4 flex flex-col items-center justify-center">
+                    {tenant.image && (
+                      <Image
+                        src={tenant.image}
+                        alt={tenant.name}
+                        width={80}
+                        height={80}
+                        className="rounded-full mb-2 object-cover"
+                         data-ai-hint={tenant.imageHint}
+                      />
+                    )}
+                    <p className="font-medium text-sm">{tenant.name}</p>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </section>
@@ -164,24 +166,25 @@ export default function DashboardPage() {
           <h2 className="text-xl font-semibold mb-4">All Tenants</h2>
           <div className="grid grid-cols-3 gap-4">
             {allTenants.map((tenant, index) => (
-              <Card
-                key={`${tenant.id}-${index}`}
-                className="overflow-hidden text-center hover:shadow-lg transition-shadow cursor-pointer"
-              >
-                <CardContent className="p-4 flex flex-col items-center justify-center">
-                  {tenant.image && (
-                    <Image
-                      src={tenant.image}
-                      alt={tenant.name}
-                      width={80}
-                      height={80}
-                      className="rounded-full mb-2 object-cover"
-                      data-ai-hint={tenant.imageHint}
-                    />
-                  )}
-                  <p className="font-medium text-sm">{tenant.name}</p>
-                </CardContent>
-              </Card>
+               <Link href={`/dashboard/restaurant/${tenant.id}`} key={`${tenant.id}-${index}`} passHref>
+                <Card
+                  className="overflow-hidden text-center hover:shadow-lg transition-shadow cursor-pointer h-full"
+                >
+                  <CardContent className="p-4 flex flex-col items-center justify-center">
+                    {tenant.image && (
+                      <Image
+                        src={tenant.image}
+                        alt={tenant.name}
+                        width={80}
+                        height={80}
+                        className="rounded-full mb-2 object-cover"
+                        data-ai-hint={tenant.imageHint}
+                      />
+                    )}
+                    <p className="font-medium text-sm">{tenant.name}</p>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </section>

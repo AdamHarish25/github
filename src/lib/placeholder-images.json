@@ -23,6 +23,30 @@
       "description": "Logo for Warung Nusantara restaurant.",
       "imageUrl": "https://images.unsplash.com/photo-1575395311793-ad870d50fbd1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwbG9nb3xlbnwwfHx8fDE3NjM0OTc1OTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "restaurant logo"
+    },
+    {
+      "id": "rustic-grill-hero",
+      "description": "Hero image for Rustic Grill, showing a steak meal.",
+      "imageUrl": "https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdGVhayUyMG1lYWx8ZW58MHx8fHwxNzY1NzU4MTg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "steak meal"
+    },
+    {
+      "id": "chicken-grill-meal",
+      "description": "A plate of grilled chicken with vegetables.",
+      "imageUrl": "https://images.unsplash.com/photo-1606041991408-33d360855246?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjaGlja2VuJTIwZ3JpbGwlMjBtZWFsfGVufDB8fHx8MTc2NTc1ODI1MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "grilled chicken"
+    },
+    {
+      "id": "chicken-katsu-meal",
+      "description": "A plate of chicken katsu with rice and salad.",
+      "imageUrl": "https://images.unsplash.com/photo-1626083013493-2951646272b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjaGlja2VuJTIwa2F0c3V8ZW58MHx8fHwxNzY1NzU4MjczfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chicken katsu"
+    },
+    {
+      "id": "combo-chicken-meal",
+      "description": "A bowl of teriyaki chicken.",
+      "imageUrl": "https://images.unsplash.com/photo-1598514983318-2f64f1638890?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0ZXJpeWFraSUyMGNoaWNrZW58ZW58MHx8fHwxNzY1NzU4MzA0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "teriyaki chicken"
     }
   ]
 }
