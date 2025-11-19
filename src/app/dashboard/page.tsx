@@ -1,18 +1,64 @@
-"use client";
+'use client';
 
+import {
+  Flame,
+  Hand,
+  Search,
+  ShoppingCart,
+  User as UserIcon,
+} from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
-import { Button } from '@/components/ui/button';
-import { signOut } from 'firebase/auth';
 import { useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useUser } from '@/firebase';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+
+const locations = [
+  'Bekasi',
+  'Alam Sutera',
+  'Kemanggisan',
+  'Malang',
+  'Semarang',
+  'Bandung',
+];
+
+const tenants = [
+  {
+    id: '1',
+    name: 'Rustic Grill',
+    image: PlaceHolderImages.find((img) => img.id === 'rustic-grill-logo')
+      ?.imageUrl,
+    imageHint: 'grill logo',
+  },
+  {
+    id: '2',
+    name: 'Mama Bento',
+    image: PlaceHolderImages.find((img) => img.id === 'mama-bento-logo')
+      ?.imageUrl,
+    imageHint: 'bento logo',
+  },
+  {
+    id: '3',
+    name: 'Warung Nusantara',
+    image: PlaceHolderImages.find((img) => img.id === 'warung-nusantara-logo')
+      ?.imageUrl,
+    imageHint: 'restaurant logo',
+  },
+];
+
+const allTenants = [
+  ...tenants,
+  ...tenants.slice().reverse(),
+  ...tenants,
+];
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
-  const auth = useFirebaseAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -21,63 +67,125 @@ export default function DashboardPage() {
     }
   }, [user, isUserLoading, router]);
 
-  const handleSignOut = async () => {
-    if (!auth) return;
-    try {
-      await signOut(auth);
-      router.replace('/login');
-    } catch (error) {
-      console.error("Error signing out: ", error);
-    }
-  };
-
-  if (isUserLoading || !user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
-        <Card className="w-full max-w-md">
-            <CardHeader className="text-center">
-                <div className="flex justify-center mb-4">
-                    <Skeleton className="h-24 w-24 rounded-full" />
-                </div>
-                <Skeleton className="h-8 w-48 mx-auto" />
-                <Skeleton className="h-5 w-56 mx-auto mt-2" />
-            </CardHeader>
-            <CardContent className="flex flex-col items-center gap-4">
-                <Skeleton className="h-5 w-full max-w-xs" />
-            </CardContent>
-            <CardFooter>
-                <Skeleton className="h-10 w-full" />
-            </CardFooter>
-        </Card>
-      </div>
-    );
-  }
+  const promoBanner = PlaceHolderImages.find((img) => img.id === 'promo-banner');
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
-      <Card className="w-full max-w-md shadow-lg border">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Avatar className="h-24 w-24 border-2 border-primary/50">
-              <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
-              <AvatarFallback className="text-3xl bg-muted">
-                {user.displayName?.charAt(0).toUpperCase() ?? user.email?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+    <div className="bg-secondary min-h-screen">
+      <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-10 p-4 border-b">
+        <div className="container mx-auto flex items-center gap-4">
+          <div className="relative flex-grow">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              placeholder="Search"
+              className="pl-10 bg-muted border-none focus-visible:ring-primary"
+            />
           </div>
-          <CardTitle className="text-2xl font-medium">Welcome to Kivo</CardTitle>
-          <CardDescription>{user.displayName ?? user.email}</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center gap-4">
-          <p className="text-muted-foreground text-sm">You have successfully logged in.</p>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={handleSignOut} className="w-full" variant="outline" disabled={!auth}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
+          <Button variant="ghost" size="icon" className="relative">
+            <ShoppingCart className="h-6 w-6" />
+            <Badge
+              variant="destructive"
+              className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0"
+            >
+              1
+            </Badge>
           </Button>
-        </CardFooter>
-      </Card>
+          <Button variant="ghost" size="icon">
+            <UserIcon className="h-6 w-6" />
+          </Button>
+        </div>
+      </header>
+
+      <main className="container mx-auto p-4">
+        <div className="mb-6">
+          <h1 className="text-2xl font-medium flex items-center gap-2">
+            Hi There <Hand className="h-6 w-6 text-yellow-500" />
+          </h1>
+          <p className="text-muted-foreground">
+            What would you like to eat today?
+          </p>
+        </div>
+
+        {promoBanner && (
+          <div className="mb-6 rounded-xl overflow-hidden shadow-lg">
+            <Image
+              src={promoBanner.imageUrl}
+              alt="Promo Banner"
+              width={600}
+              height={200}
+              className="w-full object-cover"
+              data-ai-hint={promoBanner.imageHint}
+            />
+          </div>
+        )}
+
+        <div className="mb-6 overflow-x-auto pb-2 -mx-4 px-4">
+          <div className="flex gap-3">
+            {locations.map((location, index) => (
+              <Button
+                key={location}
+                variant={index === 0 ? 'default' : 'outline'}
+                className="rounded-full"
+              >
+                {location}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            Best sellers this week <Flame className="h-6 w-6 text-orange-500" />
+          </h2>
+          <div className="grid grid-cols-3 gap-4">
+            {tenants.map((tenant) => (
+              <Card
+                key={tenant.id}
+                className="overflow-hidden text-center hover:shadow-lg transition-shadow cursor-pointer"
+              >
+                <CardContent className="p-4 flex flex-col items-center justify-center">
+                  {tenant.image && (
+                    <Image
+                      src={tenant.image}
+                      alt={tenant.name}
+                      width={80}
+                      height={80}
+                      className="rounded-full mb-2 object-cover"
+                       data-ai-hint={tenant.imageHint}
+                    />
+                  )}
+                  <p className="font-medium text-sm">{tenant.name}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-4">All Tenants</h2>
+          <div className="grid grid-cols-3 gap-4">
+            {allTenants.map((tenant, index) => (
+              <Card
+                key={`${tenant.id}-${index}`}
+                className="overflow-hidden text-center hover:shadow-lg transition-shadow cursor-pointer"
+              >
+                <CardContent className="p-4 flex flex-col items-center justify-center">
+                  {tenant.image && (
+                    <Image
+                      src={tenant.image}
+                      alt={tenant.name}
+                      width={80}
+                      height={80}
+                      className="rounded-full mb-2 object-cover"
+                      data-ai-hint={tenant.imageHint}
+                    />
+                  )}
+                  <p className="font-medium text-sm">{tenant.name}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

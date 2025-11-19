@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "promo-banner",
+      "description": "A promotional banner for food discounts.",
+      "imageUrl": "https://images.unsplash.com/photo-1513639776629-7b61b0ac49cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmb29kJTIwcHJvbW90aW9ufGVufDB8fHx8MTc2MzUxNTE5NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "food promotion"
+    },
+    {
+      "id": "rustic-grill-logo",
+      "description": "Logo for Rustic Grill restaurant.",
+      "imageUrl": "https://images.unsplash.com/photo-1743409520298-d4ef357851d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxncmlsbCUyMGxvZ298ZW58MHx8fHwxNzYzNTE1MTk0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "grill logo"
+    },
+    {
+      "id": "mama-bento-logo",
+      "description": "Logo for Mama Bento restaurant.",
+      "imageUrl": "https://picsum.photos/seed/logo2/100/100",
+      "imageHint": "bento logo"
+    },
+    {
+      "id": "warung-nusantara-logo",
+      "description": "Logo for Warung Nusantara restaurant.",
+      "imageUrl": "https://images.unsplash.com/photo-1575395311793-ad870d50fbd1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwbG9nb3xlbnwwfHx8fDE3NjM0OTc1OTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "restaurant logo"
+    }
+  ]
 }
