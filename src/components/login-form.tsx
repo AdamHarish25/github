@@ -23,9 +23,6 @@ import { Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import {
   signInWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  OAuthProvider,
 } from "firebase/auth";
 import { useAuth } from "@/firebase";
 
@@ -68,29 +65,6 @@ export function LoginForm() {
       });
     } finally {
       setIsLoading(false);
-    }
-  }
-
-  const socialLogin = async (providerName: 'google' | 'microsoft') => {
-    if (!auth) return;
-    setIsSocialLoading(providerName);
-    try {
-        let provider;
-        if (providerName === 'google') {
-            provider = new GoogleAuthProvider();
-        } else {
-            provider = new OAuthProvider('microsoft.com');
-        }
-        await signInWithPopup(auth, provider);
-        router.push("/dashboard");
-    } catch (error: any) {
-      toast({
-        title: "Login Failed",
-        description: "Could not sign in with the selected provider. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-        setIsSocialLoading(null);
     }
   }
 
@@ -153,12 +127,12 @@ export function LoginForm() {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline" onClick={() => socialLogin('google')} disabled={isSocialLoading === 'google' || !auth}>
-             {isSocialLoading === 'google' ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : <Icons.Google className="mr-2 h-4 w-4" />}
+          <Button variant="outline" disabled>
+             <Icons.Google className="mr-2 h-4 w-4" />
             Google
           </Button>
-          <Button variant="outline" onClick={() => socialLogin('microsoft')} disabled={isSocialLoading === 'microsoft' || !auth}>
-            {isSocialLoading === 'microsoft' ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : <Icons.Outlook className="mr-2 h-4 w-4" />}
+          <Button variant="outline" disabled>
+            <Icons.Outlook className="mr-2 h-4 w-4" />
             Outlook
           </Button>
         </div>
