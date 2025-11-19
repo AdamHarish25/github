@@ -1,0 +1,74 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user account within the Kivo application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "username": {
+          "type": "string",
+          "description": "The username chosen by the user.",
+          "format": "string"
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        },
+        "lastLogin": {
+          "type": "string",
+          "description": "Timestamp indicating the user's last login.",
+          "format": "date-time"
+        },
+        "profilePicture": {
+          "type": "string",
+          "description": "URL of the user's profile picture.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. The `userId` is the Firebase Authentication UID. Enforces path-based ownership for data isolation and security.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Authentication UID of the user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support user authentication and account management features for the Kivo application. The core principle is to ensure data isolation and security through path-based ownership. User data is stored under the `/users/{userId}` path, providing a natural and secure way to manage individual user profiles. This approach provides Authorization Independence, as access control can be directly tied to the `userId` without needing to query other documents. Since there is only user data, Structural Segregation is less applicable here."
+  }
+}
