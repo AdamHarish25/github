@@ -2,28 +2,25 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
-
-const orderDetails = {
-  items: [
-    { id: 1, name: 'Mie Ayam', quantity: 1, price: 23000 },
-    { id: 2, name: 'Rustic Chicken', quantity: 1, price: 23000 },
-    { id: 3, name: 'Good moments coffe', quantity: 1, price: 23000 },
-  ],
-  totalAmount: 69000,
-};
-
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(price);
-};
+import { useCart } from '@/context/cart-context';
+import { useEffect } from 'react';
 
 export default function PaymentSuccessPage() {
+  const { cart, cartTotal, formatPrice, clearCart } = useCart();
+
+  useEffect(() => {
+    // Clear the cart when the component mounts
+    const timer = setTimeout(() => {
+      clearCart();
+    }, 500); // give a small delay to ensure cart is displayed before clearing
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
       <div className="w-full max-w-md text-center">
@@ -104,24 +101,26 @@ export default function PaymentSuccessPage() {
           We are preparing your order and it will be delivered to <br /> your table shortly. Thank you!
         </p>
 
-        <Card className="text-left bg-accent/50 border-none shadow-none">
-          <CardHeader>
-            <CardTitle className="text-center text-primary font-semibold">Your order</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {orderDetails.items.map((item) => (
-              <div key={item.id} className="flex justify-between items-center text-sm">
-                <p className="text-muted-foreground">{item.name} {item.quantity}x</p>
-                <p className="font-medium text-foreground">{formatPrice(item.price)}</p>
-              </div>
-            ))}
-            <Separator className="my-4 bg-border/50"/>
-            <div className="flex justify-between items-center font-semibold text-base">
-              <p className="text-muted-foreground">Total Amount</p>
-              <p className="text-foreground">{formatPrice(orderDetails.totalAmount)}</p>
-            </div>
-          </CardContent>
-        </Card>
+        {cart.length > 0 && (
+            <Card className="text-left bg-accent/50 border-none shadow-none">
+            <CardHeader>
+                <CardTitle className="text-center text-primary font-semibold">Your order</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+                {cart.map((item) => (
+                <div key={item.id} className="flex justify-between items-center text-sm">
+                    <p className="text-muted-foreground">{item.name} {item.quantity}x</p>
+                    <p className="font-medium text-foreground">{formatPrice(item.price)}</p>
+                </div>
+                ))}
+                <Separator className="my-4 bg-border/50"/>
+                <div className="flex justify-between items-center font-semibold text-base">
+                <p className="text-muted-foreground">Total Amount</p>
+                <p className="text-foreground">{formatPrice(cartTotal)}</p>
+                </div>
+            </CardContent>
+            </Card>
+        )}
 
         <Link href="/dashboard" passHref className='mt-8 block'>
             <Button size="lg" className="w-full rounded-lg">

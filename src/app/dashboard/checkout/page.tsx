@@ -13,45 +13,15 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Separator } from '@/components/ui/separator';
-
-const orderedItems = [
-  {
-    id: '1',
-    name: 'Paket Chicken Grill',
-    price: 25000,
-    quantity: 1,
-    image: PlaceHolderImages.find((img) => img.id === 'chicken-grill-meal')
-      ?.imageUrl,
-    imageHint: 'grilled chicken',
-  },
-  {
-    id: '2',
-    name: 'Paket Chicken Katsu',
-    price: 25000,
-    quantity: 1,
-    image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-meal')
-      ?.imageUrl,
-    imageHint: 'chicken katsu',
-  },
-  {
-    id: '3',
-    name: 'Paket Combo Double Chicken',
-    price: 19000,
-    quantity: 1,
-    image: PlaceHolderImages.find((img) => img.id === 'combo-chicken-meal')
-      ?.imageUrl,
-    imageHint: 'teriyaki chicken',
-  },
-];
+import { useCart } from '@/context/cart-context';
 
 const paymentMethods = [
   { id: 'qris', name: 'QR Payments', logo: '/qris.svg' },
@@ -61,34 +31,31 @@ const paymentMethods = [
 ];
 
 export default function CheckoutPage() {
-  const [cartItems, setCartItems] = useState(orderedItems);
+  const { cart, updateCartQuantity, cartTotal, formatPrice, clearCart } = useCart();
   const [selectedPayment, setSelectedPayment] = useState('qris');
   const router = useRouter();
 
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  // The checkout page needs to know about the items.
+  // We'll pass the cart from the context to this page's state.
+  // This is because the checkout page itself can modify quantities,
+  // and we might not want those changes to be global until payment.
+  // For now, we'll directly use the global cart state.
+  const [cartItems, setCartItems] = useState(cart);
+  
+  useEffect(() => {
+    setCartItems(cart);
+  }, [cart]);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
-    if (newQuantity >= 0) {
-      setCartItems(
-        cartItems.map((item) =>
-          item.id === id ? { ...item, quantity: newQuantity } : item
-        )
-      );
-    }
+    updateCartQuantity(id, newQuantity);
   };
 
   const handlePayNow = () => {
+    // Here you would typically process the payment.
+    // For now, we'll just clear the cart and redirect.
+    // clearCart(); 
+    // We might want to persist the cart for the success page, so commenting this out.
     router.push('/dashboard/checkout/success');
   };
 
@@ -112,7 +79,7 @@ export default function CheckoutPage() {
           <CupSoda className="h-10 w-10 text-primary/50 absolute top-1/2 right-1/4 transform translate-x-full -translate-y-full" />
           <p className="text-muted-foreground">Total Payments</p>
           <p className="text-5xl font-bold tracking-tighter">
-            {formatPrice(totalPrice)}
+            {formatPrice(cartTotal)}
           </p>
         </section>
 
@@ -228,9 +195,9 @@ export default function CheckoutPage() {
         <div className="container mx-auto p-4 flex justify-between items-center">
             <div>
                  <p className="text-muted-foreground text-sm">Total Price</p>
-                 <p className="font-bold text-xl">{formatPrice(totalPrice)}</p>
+                 <p className="font-bold text-xl">{formatPrice(cartTotal)}</p>
             </div>
-          <Button size="lg" className="w-1/2 rounded-full" onClick={handlePayNow}>
+          <Button size="lg" className="w-1/2 rounded-full" onClick={handlePayNow} disabled={cartTotal === 0}>
             Pay now
           </Button>
         </div>

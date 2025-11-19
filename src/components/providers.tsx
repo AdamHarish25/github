@@ -2,11 +2,12 @@
 
 import { FirebaseClientProvider } from "@/firebase";
 import { Toaster } from "@/components/ui/toaster";
+import { CartProvider } from "@/context/cart-context";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <FirebaseClientProvider>
-      {children}
+      <CartProvider>{children}</CartProvider>
       <Toaster />
     </FirebaseClientProvider>
   );

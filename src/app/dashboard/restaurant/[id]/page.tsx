@@ -13,11 +13,10 @@ import {
   Share2,
   Minus,
   Plus,
-  X,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useState, useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -35,7 +34,7 @@ import {
   SheetTrigger,
   SheetClose
 } from '@/components/ui/sheet';
-import { Separator } from '@/components/ui/separator';
+import { useCart } from '@/context/cart-context';
 
 const tenants = [
   {
@@ -48,29 +47,26 @@ const tenants = [
     )?.imageUrl,
     heroHint: 'steak meal',
   },
-
   {
     id: '2',
     name: 'Mama Bento',
     logo: PlaceHolderImages.find((img) => img.id === 'mama-bento-logo')
       ?.imageUrl,
     hero: PlaceHolderImages.find(
-      (img) => img.id === 'rustic-grill-hero'
+      (img) => img.id === 'katsu-bento-hero'
     )?.imageUrl,
     heroHint: 'katsu bowl',
   },
-
   {
     id: '3',
     name: 'Warung Nusantara',
     logo: PlaceHolderImages.find((img) => img.id === 'warung-nusantara-logo')
       ?.imageUrl,
     hero: PlaceHolderImages.find(
-      (img) => img.id === 'rustic-grill-hero'
+      (img) => img.id === 'nusantara-hero'
     )?.imageUrl,
     heroHint: 'nusantara meal',
   },
-  // Other tenants can be added here
 ];
 
 const allMenus = {
@@ -109,7 +105,7 @@ const allMenus = {
       name: 'Chicken Katsu Bento',
       description: 'Nasi, Chicken Katsu, Salad, Saus Spesial',
       price: 35000,
-      image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-meal')
+      image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-bento')
         ?.imageUrl,
       imageHint: 'chicken katsu bento',
     },
@@ -118,7 +114,7 @@ const allMenus = {
       name: 'Beef Teriyaki Bento',
       description: 'Nasi, Beef Teriyaki, Salad, Saus Spesial',
       price: 45000,
-      image: PlaceHolderImages.find((img) => img.id === 'combo-chicken-meal')
+      image: PlaceHolderImages.find((img) => img.id === 'beef-teriyaki-bento')
         ?.imageUrl,
       imageHint: 'beef teriyaki',
     },
@@ -127,7 +123,7 @@ const allMenus = {
       name: 'Salmon Bento',
       description: 'Nasi, Salmon Grill, Salad, Saus Spesial',
       price: 55000,
-      image: PlaceHolderImages.find((img) => img.id === 'chicken-grill-meal')
+      image: PlaceHolderImages.find((img) => img.id === 'salmon-bento')
         ?.imageUrl,
       imageHint: 'salmon bento',
     },
@@ -138,7 +134,7 @@ const allMenus = {
       name: 'Nasi Goreng Spesial',
       description: 'Nasi Goreng, Telur, Sate Ayam, Acar',
       price: 30000,
-      image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-meal')
+      image: PlaceHolderImages.find((img) => img.id === 'nasi-goreng')
         ?.imageUrl,
       imageHint: 'nasi goreng',
     },
@@ -147,7 +143,7 @@ const allMenus = {
       name: 'Sate Ayam',
       description: '10 Tusuk Sate Ayam dengan Bumbu Kacang',
       price: 25000,
-      image: PlaceHolderImages.find((img) => img.id === 'chicken-grill-meal')
+      image: PlaceHolderImages.find((img) => img.id === 'sate-ayam')
         ?.imageUrl,
       imageHint: 'chicken satay',
     },
@@ -156,26 +152,25 @@ const allMenus = {
       name: 'Rendang Daging',
       description: 'Daging Sapi empuk dengan bumbu rendang khas',
       price: 40000,
-      image: PlaceHolderImages.find((img) => img.id === 'combo-chicken-meal')
+      image: PlaceHolderImages.find((img) => img.id === 'rendang-daging')
         ?.imageUrl,
       imageHint: 'beef rendang',
     },
   ]
 };
 
-type MenuItem = typeof allMenus['1'][0];
-type CartItem = MenuItem & { quantity: number };
+export type MenuItem = typeof allMenus['1'][0];
 
 export default function RestaurantDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const { id } = params;
   const menuItems = allMenus[id as keyof typeof allMenus] || [];
 
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const { cart, addToCart, updateCartQuantity, cartCount, cartTotal, formatPrice } = useCart();
 
   const tenant = tenants.find((t) => t.id === id);
 
@@ -188,10 +183,6 @@ export default function RestaurantDetailPage() {
     );
   }, [searchQuery, menuItems]);
 
-  const cartCount = useMemo(() => cart.reduce((count, item) => count + item.quantity, 0), [cart]);
-  const cartTotal = useMemo(() => cart.reduce((total, item) => total + item.price * item.quantity, 0), [cart]);
-
-
   if (!tenant) {
     return <div>Restaurant not found</div>;
   }
@@ -203,36 +194,8 @@ export default function RestaurantDetailPage() {
 
   const handleAddToCart = () => {
     if (!selectedItem) return;
-
-    setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.id === selectedItem.id);
-      if (existingItem) {
-        return prevCart.map(item =>
-          item.id === selectedItem.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      } else {
-        return [...prevCart, { ...selectedItem, quantity }];
-      }
-    });
+    addToCart(selectedItem, quantity);
     setSelectedItem(null);
-  };
-  
-  const handleCartQuantityChange = (id: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      setCart(cart.filter(item => item.id !== id));
-    } else {
-      setCart(cart.map(item => item.id === id ? { ...item, quantity: newQuantity } : item));
-    }
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(price);
   };
 
   return (
@@ -380,7 +343,7 @@ export default function RestaurantDetailPage() {
                                 variant="outline"
                                 size="icon"
                                 className="h-7 w-7"
-                                onClick={() => handleCartQuantityChange(item.id, item.quantity - 1)}
+                                onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
                             >
                                 <Minus className="h-4 w-4" />
                             </Button>
@@ -389,7 +352,7 @@ export default function RestaurantDetailPage() {
                                 variant="outline"
                                 size="icon"
                                 className="h-7 w-7"
-                                onClick={() => handleCartQuantityChange(item.id, item.quantity + 1)}
+                                onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
                             >
                                 <Plus className="h-4 w-4" />
                             </Button>
