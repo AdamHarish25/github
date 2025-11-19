@@ -1,8 +1,9 @@
+
 export const firebaseConfig = {
-  "projectId": "kivo-3453a",
-  "appId": "1:652233832863:web:03f0b2f90a5f9b48b6f368",
-  "storageBucket": "kivo-3453a.appspot.com",
-  "apiKey": "AIzaSyDFfG2J682AACATH1gJg85n2YkMv9n_1-Y",
-  "authDomain": "kivo-3453a.firebaseapp.com",
-  "messagingSenderId": "652233832863"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
