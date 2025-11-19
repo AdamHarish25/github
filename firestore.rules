@@ -48,21 +48,9 @@ service cloud.firestore {
         return request.auth.uid == userId;
       }
 
-      // Helper function to check if the request is made by the owner of the existing document.
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow get: if isSignedIn() && isOwner(userId);
+      allow read: if isSignedIn() && isOwner(userId);
+      allow write: if isSignedIn() && isOwner(userId);
       allow list: if false; // Listing users is not allowed.
-
-      // Allow the user to create their own document if the userId matches their auth.uid
-      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
-
-      // Existing owner can update. Enforce immutability of the id field
-      allow update: if isSignedIn() && isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-
-      allow delete: if isSignedIn() && isExistingOwner(userId);
     }
   }
 }

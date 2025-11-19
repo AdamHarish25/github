@@ -25,7 +25,9 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import { useAuth } from "@/firebase";
+import { useAuth, useFirestore } from "@/firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 
 const formSchema = z.object({
   username: z.string().min(3, { message: "Username must be at least 3 characters." }),
@@ -36,6 +38,7 @@ const formSchema = z.object({
 export function SignupForm() {
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
   
@@ -49,25 +52,47 @@ export function SignupForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!auth) return;
+    if (!auth || !firestore) return;
     setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      if (userCredential.user) {
-        await updateProfile(userCredential.user, {
+      const user = userCredential.user;
+
+      if (user) {
+        // 1. Update Firebase Auth profile
+        await updateProfile(user, {
           displayName: values.username,
         });
+
+        // 2. Create user document in Firestore
+        const userDocRef = doc(firestore, "users", user.uid);
+        const newUserDocument = {
+          id: user.uid,
+          username: values.username,
+          email: values.email,
+          createdAt: serverTimestamp(),
+          lastLogin: serverTimestamp(),
+          profilePicture: user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`,
+        };
+        
+        // Use non-blocking write
+        setDocumentNonBlocking(userDocRef, newUserDocument, { merge: true });
       }
+
       toast({
         title: "Account Created",
         description: "You have successfully signed up.",
       });
       router.push("/dashboard");
+
     } catch (error: any) {
-      let message = "An unknown error occurred.";
+      let message = "An unknown error occurred. Please try again.";
       if (error.code === "auth/email-already-in-use") {
         message = "This email is already in use.";
+      } else if (error.code === "auth/weak-password") {
+        message = "The password is too weak.";
       }
+      console.error("Signup Error:", error);
       toast({
         title: "Sign Up Failed",
         description: message,
