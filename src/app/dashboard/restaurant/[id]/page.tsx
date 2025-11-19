@@ -13,11 +13,13 @@ import {
   Share2,
   Minus,
   Plus,
+  LogOut,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useState, useMemo } from 'react';
+import { signOut } from 'firebase/auth';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -34,7 +36,16 @@ import {
   SheetTrigger,
   SheetClose
 } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useCart } from '@/context/cart-context';
+import { useUser, useAuth } from '@/firebase';
 
 const tenants = [
   {
@@ -53,7 +64,7 @@ const tenants = [
     logo: PlaceHolderImages.find((img) => img.id === 'mama-bento-logo')
       ?.imageUrl,
     hero: PlaceHolderImages.find(
-      (img) => img.id === 'katsu-bento-hero'
+      (img) => img.id === 'rustic-grill-hero'
     )?.imageUrl,
     heroHint: 'katsu bowl',
   },
@@ -63,7 +74,7 @@ const tenants = [
     logo: PlaceHolderImages.find((img) => img.id === 'warung-nusantara-logo')
       ?.imageUrl,
     hero: PlaceHolderImages.find(
-      (img) => img.id === 'nusantara-hero'
+      (img) => img.id === 'rustic-grill-hero'
     )?.imageUrl,
     heroHint: 'nusantara meal',
   },
@@ -105,7 +116,7 @@ const allMenus = {
       name: 'Chicken Katsu Bento',
       description: 'Nasi, Chicken Katsu, Salad, Saus Spesial',
       price: 35000,
-      image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-bento')
+      image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-meal')
         ?.imageUrl,
       imageHint: 'chicken katsu bento',
     },
@@ -114,7 +125,7 @@ const allMenus = {
       name: 'Beef Teriyaki Bento',
       description: 'Nasi, Beef Teriyaki, Salad, Saus Spesial',
       price: 45000,
-      image: PlaceHolderImages.find((img) => img.id === 'beef-teriyaki-bento')
+      image: PlaceHolderImages.find((img) => img.id === 'chicken-grill-meal')
         ?.imageUrl,
       imageHint: 'beef teriyaki',
     },
@@ -123,7 +134,7 @@ const allMenus = {
       name: 'Salmon Bento',
       description: 'Nasi, Salmon Grill, Salad, Saus Spesial',
       price: 55000,
-      image: PlaceHolderImages.find((img) => img.id === 'salmon-bento')
+      image: PlaceHolderImages.find((img) => img.id === 'combo-chicken-meal')
         ?.imageUrl,
       imageHint: 'salmon bento',
     },
@@ -134,7 +145,7 @@ const allMenus = {
       name: 'Nasi Goreng Spesial',
       description: 'Nasi Goreng, Telur, Sate Ayam, Acar',
       price: 30000,
-      image: PlaceHolderImages.find((img) => img.id === 'nasi-goreng')
+      image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-meal')
         ?.imageUrl,
       imageHint: 'nasi goreng',
     },
@@ -143,7 +154,7 @@ const allMenus = {
       name: 'Sate Ayam',
       description: '10 Tusuk Sate Ayam dengan Bumbu Kacang',
       price: 25000,
-      image: PlaceHolderImages.find((img) => img.id === 'sate-ayam')
+      image: PlaceHolderImages.find((img) => img.id === 'combo-chicken-meal')
         ?.imageUrl,
       imageHint: 'chicken satay',
     },
@@ -152,7 +163,7 @@ const allMenus = {
       name: 'Rendang Daging',
       description: 'Daging Sapi empuk dengan bumbu rendang khas',
       price: 40000,
-      image: PlaceHolderImages.find((img) => img.id === 'rendang-daging')
+      image: PlaceHolderImages.find((img) => img.id === 'chicken-grill-meal')
         ?.imageUrl,
       imageHint: 'beef rendang',
     },
@@ -163,6 +174,7 @@ export type MenuItem = typeof allMenus['1'][0];
 
 export default function RestaurantDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const { id } = params;
   const menuItems = allMenus[id as keyof typeof allMenus] || [];
 
@@ -171,6 +183,15 @@ export default function RestaurantDetailPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const { cart, addToCart, updateCartQuantity, cartCount, cartTotal, formatPrice } = useCart();
+  const { user } = useUser();
+  const auth = useAuth();
+  
+  const handleSignOut = async () => {
+    if (auth) {
+      await signOut(auth);
+      router.replace('/login');
+    }
+  };
 
   const tenant = tenants.find((t) => t.id === id);
 
@@ -230,9 +251,23 @@ export default function RestaurantDetailPage() {
                   )}
                 </Button>
             </SheetTrigger>
-            <Button variant="ghost" size="icon">
-              <UserIcon className="h-6 w-6" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <UserIcon className="h-6 w-6" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  {user?.displayName || 'My Account'}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 

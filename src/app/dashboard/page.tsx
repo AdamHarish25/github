@@ -1,8 +1,10 @@
+
 'use client';
 
 import {
   Flame,
   Hand,
+  LogOut,
   Minus,
   Plus,
   Search,
@@ -12,7 +14,8 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
+import { signOut } from 'firebase/auth';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,7 +30,15 @@ import {
   SheetTrigger,
   SheetClose,
 } from '@/components/ui/sheet';
-import { useUser } from '@/firebase';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useUser, useAuth } from '@/firebase';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useCart } from '@/context/cart-context';
 
@@ -72,6 +83,7 @@ const allTenants = [
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
+  const auth = useAuth();
   const router = useRouter();
   const { cart, updateCartQuantity, cartCount, cartTotal, formatPrice } =
     useCart();
@@ -81,6 +93,13 @@ export default function DashboardPage() {
       router.replace('/login');
     }
   }, [user, isUserLoading, router]);
+  
+  const handleSignOut = async () => {
+    if (auth) {
+      await signOut(auth);
+      router.replace('/login');
+    }
+  };
 
   const promoBanner = PlaceHolderImages.find((img) => img.id === 'promo-banner');
 
@@ -109,9 +128,23 @@ export default function DashboardPage() {
                 )}
               </Button>
             </SheetTrigger>
-            <Button variant="ghost" size="icon">
-              <UserIcon className="h-6 w-6" />
-            </Button>
+             <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <UserIcon className="h-6 w-6" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  {user?.displayName || 'My Account'}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
