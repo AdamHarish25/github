@@ -44,44 +44,127 @@ const tenants = [
     )?.imageUrl,
     heroHint: 'steak meal',
   },
+
+  {
+    id: '2',
+    name: 'Mama Bento',
+    logo: PlaceHolderImages.find((img) => img.id === 'mama-bento-logo')
+      ?.imageUrl,
+    hero: PlaceHolderImages.find(
+      (img) => img.id === 'rustic-grill-hero'
+    )?.imageUrl,
+    heroHint: 'katsu bowl',
+  },
+
+  {
+    id: '3',
+    name: 'Warung Nusantara',
+    logo: PlaceHolderImages.find((img) => img.id === 'warung-nusantara-logo')
+      ?.imageUrl,
+    hero: PlaceHolderImages.find(
+      (img) => img.id === 'rustic-grill-hero'
+    )?.imageUrl,
+    heroHint: 'nusantara meal',
+  },
   // Other tenants can be added here
 ];
 
-const menuItems = [
-  {
-    id: '1',
-    name: 'Paket Chicken Grill',
-    description: 'Nasi / Kentang + Ayam Grill + Veggies + Mushroom / Cheese Sauce',
-    price: 25000,
-    image: PlaceHolderImages.find((img) => img.id === 'chicken-grill-meal')
+const allMenus = {
+  '1': [ // Rustic Grill
+    {
+      id: '1-1',
+      name: 'Paket Chicken Grill',
+      description: 'Nasi / Kentang + Ayam Grill + Veggies + Mushroom / Cheese Sauce',
+      price: 25000,
+      image: PlaceHolderImages.find((img) => img.id === 'chicken-grill-meal')
+        ?.imageUrl,
+      imageHint: 'grilled chicken',
+    },
+    {
+      id: '1-2',
+      name: 'Paket Chicken Katsu',
+      description: 'Nasi / Kentang + Chicken Katsu + Veggies + Mushroom / Cheese Sauce',
+      price: 25000,
+      image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-meal')
       ?.imageUrl,
-    imageHint: 'grilled chicken',
-  },
-  {
-    id: '2',
-    name: 'Paket Chicken Katsu',
-    description: 'Nasi / Kentang + Chicken Katsu + Veggies + Mushroom / Cheese Sauce',
-    price: 25000,
-    image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-meal')
-    ?.imageUrl,
-    imageHint: 'chicken katsu',
-  },
-  {
-    id: '3',
-    name: 'Paket Combo Double Chicken',
-    description: 'Nasi / Kentang + Chichken Teriyaki + Chicken Crispy + Mushroom / Cheese Sauce',
-    price: 25000,
-    image: PlaceHolderImages.find((img) => img.id === 'combo-chicken-meal')
-      ?.imageUrl,
-    imageHint: 'teriyaki chicken',
-  },
-];
+      imageHint: 'chicken katsu',
+    },
+    {
+      id: '1-3',
+      name: 'Paket Combo Double Chicken',
+      description: 'Nasi / Kentang + Chichken Teriyaki + Chicken Crispy + Mushroom / Cheese Sauce',
+      price: 19000,
+      image: PlaceHolderImages.find((img) => img.id === 'combo-chicken-meal')
+        ?.imageUrl,
+      imageHint: 'teriyaki chicken',
+    },
+  ],
+  '2': [ // Mama Bento
+    {
+      id: '2-1',
+      name: 'Chicken Katsu Bento',
+      description: 'Nasi, Chicken Katsu, Salad, Saus Spesial',
+      price: 35000,
+      image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-meal')
+        ?.imageUrl,
+      imageHint: 'chicken katsu bento',
+    },
+    {
+      id: '2-2',
+      name: 'Beef Teriyaki Bento',
+      description: 'Nasi, Beef Teriyaki, Salad, Saus Spesial',
+      price: 45000,
+      image: PlaceHolderImages.find((img) => img.id === 'combo-chicken-meal')
+        ?.imageUrl,
+      imageHint: 'beef teriyaki',
+    },
+    {
+      id: '2-3',
+      name: 'Salmon Bento',
+      description: 'Nasi, Salmon Grill, Salad, Saus Spesial',
+      price: 55000,
+      image: PlaceHolderImages.find((img) => img.id === 'chicken-grill-meal')
+        ?.imageUrl,
+      imageHint: 'salmon bento',
+    },
+  ],
+  '3': [ // Warung Nusantara
+    {
+      id: '3-1',
+      name: 'Nasi Goreng Spesial',
+      description: 'Nasi Goreng, Telur, Sate Ayam, Acar',
+      price: 30000,
+      image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-meal')
+        ?.imageUrl,
+      imageHint: 'nasi goreng',
+    },
+    {
+      id: '3-2',
+      name: 'Sate Ayam',
+      description: '10 Tusuk Sate Ayam dengan Bumbu Kacang',
+      price: 25000,
+      image: PlaceHolderImages.find((img) => img.id === 'chicken-grill-meal')
+        ?.imageUrl,
+      imageHint: 'chicken satay',
+    },
+    {
+      id: '3-3',
+      name: 'Rendang Daging',
+      description: 'Daging Sapi empuk dengan bumbu rendang khas',
+      price: 40000,
+      image: PlaceHolderImages.find((img) => img.id === 'combo-chicken-meal')
+        ?.imageUrl,
+      imageHint: 'beef rendang',
+    },
+  ]
+};
 
-type MenuItem = typeof menuItems[0];
+type MenuItem = typeof allMenus['1'][0];
 
 export default function RestaurantDetailPage() {
   const params = useParams();
   const { id } = params;
+  const menuItems = allMenus[id as keyof typeof allMenus] || [];
 
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -98,7 +181,7 @@ export default function RestaurantDetailPage() {
     return menuItems.filter((item) =>
       item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
+  }, [searchQuery, menuItems]);
 
   if (!tenant) {
     return <div>Restaurant not found</div>;
@@ -137,7 +220,7 @@ export default function RestaurantDetailPage() {
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Search in Rustic Grill"
+              placeholder={`Search in ${tenant.name}`}
               className="pl-10 bg-muted border-none focus-visible:ring-primary"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -241,10 +324,10 @@ export default function RestaurantDetailPage() {
       </main>
 
       {cartCount > 0 && (
-        <footer className="fixed bottom-4 left-0 right-0 z-20">
-          <div className="container mx-auto px-4">
+        <footer className="fixed bottom-4 left-0 right-0 z-20 px-4">
+          <div className="container mx-auto">
             <Link href="/dashboard/checkout" passHref>
-              <div className="bg-primary text-primary-foreground p-3 shadow-lg rounded-2xl flex justify-between items-center w-full hover:bg-primary/90 transition-colors cursor-pointer">
+              <div className="bg-primary text-primary-foreground p-3 shadow-lg rounded-2xl flex justify-between items-center w-full max-w-2xl mx-auto hover:bg-primary/90 transition-colors cursor-pointer">
                 <div className="flex items-center gap-3">
                   <div className="bg-background/20 p-2 rounded-full">
                     <ChefHat className="text-primary-foreground" />
