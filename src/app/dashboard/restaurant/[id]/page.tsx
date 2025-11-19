@@ -13,10 +13,11 @@ import {
   Share2,
   Minus,
   Plus,
+  X,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useState, useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -31,7 +32,10 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
+  SheetTrigger,
+  SheetClose
 } from '@/components/ui/sheet';
+import { Separator } from '@/components/ui/separator';
 
 const tenants = [
   {
@@ -160,16 +164,17 @@ const allMenus = {
 };
 
 type MenuItem = typeof allMenus['1'][0];
+type CartItem = MenuItem & { quantity: number };
 
 export default function RestaurantDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const { id } = params;
   const menuItems = allMenus[id as keyof typeof allMenus] || [];
 
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [cartCount, setCartCount] = useState(1);
-  const [cartTotal, setCartTotal] = useState(25000);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   const tenant = tenants.find((t) => t.id === id);
@@ -183,6 +188,10 @@ export default function RestaurantDetailPage() {
     );
   }, [searchQuery, menuItems]);
 
+  const cartCount = useMemo(() => cart.reduce((count, item) => count + item.quantity, 0), [cart]);
+  const cartTotal = useMemo(() => cart.reduce((total, item) => total + item.price * item.quantity, 0), [cart]);
+
+
   if (!tenant) {
     return <div>Restaurant not found</div>;
   }
@@ -193,10 +202,28 @@ export default function RestaurantDetailPage() {
   };
 
   const handleAddToCart = () => {
-    if (selectedItem) {
-      setCartCount(cartCount + quantity);
-      setCartTotal(cartTotal + selectedItem.price * quantity);
-      setSelectedItem(null);
+    if (!selectedItem) return;
+
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => item.id === selectedItem.id);
+      if (existingItem) {
+        return prevCart.map(item =>
+          item.id === selectedItem.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      } else {
+        return [...prevCart, { ...selectedItem, quantity }];
+      }
+    });
+    setSelectedItem(null);
+  };
+  
+  const handleCartQuantityChange = (id: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      setCart(cart.filter(item => item.id !== id));
+    } else {
+      setCart(cart.map(item => item.id === id ? { ...item, quantity: newQuantity } : item));
     }
   };
 
@@ -210,201 +237,276 @@ export default function RestaurantDetailPage() {
 
   return (
     <div className="bg-background min-h-screen pb-32">
-      <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-20 p-4 border-b">
-        <div className="container mx-auto flex items-center gap-4">
-          <Link href="/dashboard" passHref>
-             <Button variant="ghost" size="icon">
-                <ArrowLeft />
-             </Button>
-          </Link>
-          <div className="relative flex-grow">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              placeholder={`Search in ${tenant.name}`}
-              className="pl-10 bg-muted border-none focus-visible:ring-primary"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <Button variant="ghost" size="icon" className="relative">
-            <ShoppingCart className="h-6 w-6" />
-            {cartCount > 0 && (
-              <Badge
-                variant="destructive"
-                className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0"
-              >
-                {cartCount}
-              </Badge>
-            )}
-          </Button>
-          <Button variant="ghost" size="icon">
-            <UserIcon className="h-6 w-6" />
-          </Button>
-        </div>
-      </header>
-
-      <main className="container mx-auto">
-        <div className="relative h-48 md:h-64 -mx-4 mt-4">
-          {tenant.hero && (
-            <Image
-              src={tenant.hero}
-              alt={`${tenant.name} hero image`}
-              fill
-              className="object-cover"
-              data-ai-hint={tenant.heroHint}
-            />
-          )}
-          <div className="absolute -bottom-12 right-4">
-            <Card className="rounded-xl overflow-hidden shadow-lg w-28 h-28">
-              <CardContent className="p-2 flex flex-col items-center justify-center">
-                {tenant.logo && (
-                   <Image
-                    src={tenant.logo}
-                    alt={`${tenant.name} logo`}
-                    width={80}
-                    height={80}
-                    className="object-contain"
-                    data-ai-hint="restaurant logo"
-                  />
-                )}
-                <p className="font-medium text-xs mt-1 text-center">{tenant.name}</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-        
-        <div className="mt-16 px-4">
-          <h1 className="text-2xl font-bold">{tenant.name}</h1>
-        </div>
-
-        <section className="mt-8 px-4">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            Best Sellers <Flame className="h-6 w-6 text-orange-500" />
-          </h2>
-          <div className="space-y-4">
-            {filteredMenuItems.length > 0 ? (
-              filteredMenuItems.map((item) => (
-                <Card key={item.id} className="overflow-hidden">
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className="flex-grow">
-                      <h3 className="font-semibold">{item.name}</h3>
-                      <p className="text-muted-foreground text-sm">{item.description}</p>
-                      <p className="font-semibold mt-2">{formatPrice(item.price)}</p>
-                    </div>
-                    <div className="flex-shrink-0 flex flex-col items-center gap-2">
-                      {item.image && (
-                        <Image
-                          src={item.image}
-                          alt={item.name}
-                          width={80}
-                          height={80}
-                          className="rounded-xl object-cover h-20 w-20 object-center"
-                          data-ai-hint={item.imageHint}
-                        />
-                      )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => handleOpenSheet(item)}
-                      >
-                        Tambah
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-                <div className="text-center py-10">
-                    <p className="text-muted-foreground">No menu items found for "{searchQuery}".</p>
-                </div>
-            )}
-          </div>
-        </section>
-      </main>
-
-      {cartCount > 0 && (
-        <footer className="fixed bottom-4 left-0 right-0 z-20 px-4">
-          <div className="container mx-auto">
-            <Link href="/dashboard/checkout" passHref>
-              <div className="bg-primary text-primary-foreground p-3 shadow-lg rounded-2xl flex justify-between items-center w-full max-w-2xl mx-auto hover:bg-primary/90 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <div className="bg-background/20 p-2 rounded-full">
-                    <ChefHat className="text-primary-foreground" />
-                  </div>
-                  <div className="text-sm">
-                    <p>{cartCount === 1 ? cartCount + " Item" : cartCount + " Items"}  | Will be ship to you from <b>{tenant.name}</b></p>
-                    <p className="font-bold">{formatPrice(cartTotal)}</p>
-                  </div>
-                </div>
-                <div className="relative bg-background/20 p-2 rounded-xl">
-                  <ShoppingCart />
-                  <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 justify-center p-0">{cartCount}</Badge>
-                </div>
-              </div>
+       <Sheet>
+        <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-20 p-4 border-b">
+          <div className="container mx-auto flex items-center gap-4">
+            <Link href="/dashboard" passHref>
+              <Button variant="ghost" size="icon">
+                  <ArrowLeft />
+              </Button>
             </Link>
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                placeholder={`Search in ${tenant.name}`}
+                className="pl-10 bg-muted border-none focus-visible:ring-primary"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingCart className="h-6 w-6" />
+                  {cartCount > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0"
+                    >
+                      {cartCount}
+                    </Badge>
+                  )}
+                </Button>
+            </SheetTrigger>
+            <Button variant="ghost" size="icon">
+              <UserIcon className="h-6 w-6" />
+            </Button>
           </div>
-        </footer>
-      )}
+        </header>
 
-      {selectedItem && (
-        <Sheet open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
-          <SheetContent side="bottom" className="rounded-t-2xl p-0">
-            <div className="relative h-56">
-               {selectedItem.image && (
-                <Image
-                  src={selectedItem.image}
-                  alt={selectedItem.name}
-                  fill
-                  className="object-cover rounded-t-2xl"
-                  data-ai-hint={selectedItem.imageHint}
-                />
+        <main className="container mx-auto">
+          <div className="relative h-48 md:h-64 -mx-4 mt-4">
+            {tenant.hero && (
+              <Image
+                src={tenant.hero}
+                alt={`${tenant.name} hero image`}
+                fill
+                className="object-cover"
+                data-ai-hint={tenant.heroHint}
+              />
+            )}
+            <div className="absolute -bottom-12 right-4">
+              <Card className="rounded-xl overflow-hidden shadow-lg w-28 h-28">
+                <CardContent className="p-2 flex flex-col items-center justify-center">
+                  {tenant.logo && (
+                    <Image
+                      src={tenant.logo}
+                      alt={`${tenant.name} logo`}
+                      width={80}
+                      height={80}
+                      className="object-contain"
+                      data-ai-hint="restaurant logo"
+                    />
+                  )}
+                  <p className="font-medium text-xs mt-1 text-center">{tenant.name}</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          
+          <div className="mt-16 px-4">
+            <h1 className="text-2xl font-bold">{tenant.name}</h1>
+          </div>
+
+          <section className="mt-8 px-4">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              Best Sellers <Flame className="h-6 w-6 text-orange-500" />
+            </h2>
+            <div className="space-y-4">
+              {filteredMenuItems.length > 0 ? (
+                filteredMenuItems.map((item) => (
+                  <Card key={item.id} className="overflow-hidden">
+                    <CardContent className="p-4 flex items-center gap-4">
+                      <div className="flex-grow">
+                        <h3 className="font-semibold">{item.name}</h3>
+                        <p className="text-muted-foreground text-sm">{item.description}</p>
+                        <p className="font-semibold mt-2">{formatPrice(item.price)}</p>
+                      </div>
+                      <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                        {item.image && (
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            width={80}
+                            height={80}
+                            className="rounded-xl object-cover h-20 w-20 object-center"
+                            data-ai-hint={item.imageHint}
+                          />
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => handleOpenSheet(item)}
+                        >
+                          Tambah
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                  <div className="text-center py-10">
+                      <p className="text-muted-foreground">No menu items found for "{searchQuery}".</p>
+                  </div>
               )}
             </div>
-            <div className="p-6 pb-0">
-              <SheetHeader>
-                <SheetTitle className="text-2xl font-bold">{selectedItem.name}</SheetTitle>
-                <SheetDescription className="text-base">{selectedItem.description}</SheetDescription>
-              </SheetHeader>
-              <p className="text-2xl font-bold my-4">{formatPrice(selectedItem.price)}</p>
-              <div className="flex justify-center gap-2 mb-6">
-                <Button variant="outline" className="rounded-full">
-                  <Heart className="mr-2 h-4 w-4" /> Favorite
-                </Button>
-                <Button variant="outline" className="rounded-full">
-                  <AlertTriangle className="mr-2 h-4 w-4" /> Lapor
-                </Button>
-                <Button variant="outline" className="rounded-full">
-                  <Share2 className="mr-2 h-4 w-4" /> Bagikan
-                </Button>
+          </section>
+        </main>
+        
+        <SheetContent className="flex flex-col">
+          <SheetHeader className="px-6">
+            <SheetTitle>Your Order</SheetTitle>
+          </SheetHeader>
+          {cart.length > 0 ? (
+            <>
+              <div className="flex-grow overflow-y-auto px-6 space-y-4">
+                {cart.map(item => (
+                  <div key={item.id} className="flex items-start gap-4">
+                    {item.image && (
+                        <Image
+                            src={item.image}
+                            alt={item.name}
+                            width={64}
+                            height={64}
+                            className="rounded-lg object-cover h-16 w-16"
+                            data-ai-hint={item.imageHint}
+                        />
+                    )}
+                    <div className="flex-grow">
+                        <p className="font-medium text-sm">{item.name}</p>
+                        <p className="font-bold text-sm">{formatPrice(item.price)}</p>
+                         <div className="flex items-center gap-2 mt-2">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => handleCartQuantityChange(item.id, item.quantity - 1)}
+                            >
+                                <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="font-bold text-center w-4 text-sm">{item.quantity}</span>
+                             <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => handleCartQuantityChange(item.id, item.quantity + 1)}
+                            >
+                                <Plus className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    <p className="font-semibold text-sm">{formatPrice(item.price * item.quantity)}</p>
+                  </div>
+                ))}
               </div>
+              <SheetFooter className="px-6 py-4 mt-auto bg-background border-t">
+                  <div className="w-full space-y-4">
+                    <div className="flex justify-between font-bold text-lg">
+                        <span>Total Price</span>
+                        <span>{formatPrice(cartTotal)}</span>
+                    </div>
+                    <SheetClose asChild>
+                        <Link href="/dashboard/checkout" passHref className='w-full'>
+                            <Button size="lg" className="w-full">
+                                Checkout
+                            </Button>
+                        </Link>
+                    </SheetClose>
+                 </div>
+              </SheetFooter>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center flex-grow text-center">
+              <ShoppingCart className="w-16 h-16 text-muted-foreground/50 mb-4" />
+              <p className="font-semibold text-lg">Your cart is empty</p>
+              <p className="text-muted-foreground text-sm">Add some items from the menu to get started.</p>
             </div>
-            <SheetFooter className="p-6 pt-0 flex-row justify-between items-center bg-background sticky bottom-0">
-              <div className="flex items-center gap-4">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={quantity <= 1}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="text-xl font-bold w-8 text-center">{quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setQuantity(quantity + 1)}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
+          )}
+        </SheetContent>
+
+        {cartCount > 0 && !selectedItem && (
+          <footer className="fixed bottom-4 left-0 right-0 z-20 px-4">
+            <div className="container mx-auto">
+              <Link href="/dashboard/checkout" passHref>
+                <div className="bg-primary text-primary-foreground p-3 shadow-lg rounded-2xl flex justify-between items-center w-full max-w-2xl mx-auto hover:bg-primary/90 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-background/20 p-2 rounded-full">
+                      <ChefHat className="text-primary-foreground" />
+                    </div>
+                    <div className="text-sm">
+                      <p>{cartCount === 1 ? cartCount + " Item" : cartCount + " Items"}  | Will be ship to you from <b>{tenant.name}</b></p>
+                      <p className="font-bold">{formatPrice(cartTotal)}</p>
+                    </div>
+                  </div>
+                  <div className="relative bg-background/20 p-2 rounded-xl">
+                    <ShoppingCart />
+                    <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 justify-center p-0">{cartCount}</Badge>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </footer>
+        )}
+
+        {selectedItem && (
+          <Sheet open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
+            <SheetContent side="bottom" className="rounded-t-2xl p-0">
+              <div className="relative h-56">
+                {selectedItem.image && (
+                  <Image
+                    src={selectedItem.image}
+                    alt={selectedItem.name}
+                    fill
+                    className="object-cover rounded-t-2xl"
+                    data-ai-hint={selectedItem.imageHint}
+                  />
+                )}
               </div>
-              <Button size="lg" className="flex-grow rounded-full text-base" onClick={handleAddToCart}>
-                Tambah Pembelian
-              </Button>
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
-      )}
+              <div className="p-6 pb-0">
+                <SheetHeader>
+                  <SheetTitle className="text-2xl font-bold">{selectedItem.name}</SheetTitle>
+                  <SheetDescription className="text-base">{selectedItem.description}</SheetDescription>
+                </SheetHeader>
+                <p className="text-2xl font-bold my-4">{formatPrice(selectedItem.price)}</p>
+                <div className="flex justify-center gap-2 mb-6">
+                  <Button variant="outline" className="rounded-full">
+                    <Heart className="mr-2 h-4 w-4" /> Favorite
+                  </Button>
+                  <Button variant="outline" className="rounded-full">
+                    <AlertTriangle className="mr-2 h-4 w-4" /> Lapor
+                  </Button>
+                  <Button variant="outline" className="rounded-full">
+                    <Share2 className="mr-2 h-4 w-4" /> Bagikan
+                  </Button>
+                </div>
+              </div>
+              <SheetFooter className="p-6 pt-0 flex-row justify-between items-center bg-background sticky bottom-0">
+                <div className="flex items-center gap-4">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      disabled={quantity <= 1}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="text-xl font-bold w-8 text-center">{quantity}</span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setQuantity(quantity + 1)}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                </div>
+                <Button size="lg" className="flex-grow rounded-full text-base" onClick={handleAddToCart}>
+                  Add to cart
+                </Button>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        )}
+      </Sheet>
     </div>
   );
 }
