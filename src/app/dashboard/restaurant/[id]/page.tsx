@@ -49,7 +49,7 @@ const menuItems = [
     description: 'Nasi / Kentang + Chicken Katsu + Veggies + Mushroom / Cheese Sauce',
     price: '25.000',
     image: PlaceHolderImages.find((img) => img.id === 'chicken-katsu-meal')
-      ?.imageUrl,
+    ?.imageUrl,
     imageHint: 'chicken katsu',
   },
   {
