@@ -172,8 +172,8 @@ export default function RestaurantDetailPage() {
         </section>
       </main>
 
-      <footer className="fixed bottom-4 left-4 right-4 z-20">
-          <div className="bg-primary text-primary-foreground p-3 shadow-lg rounded-xl flex justify-between items-center container mx-auto">
+      <footer className="fixed bottom-4 left-4 right-4 z-20 drop-shadow-lg">
+          <div className="bg-primary text-primary-foreground p-3 shadow-lg rounded-2xl flex justify-between items-center container mx-auto">
             <div className="flex items-center gap-3">
               <div className="bg-background/20 p-2 rounded-full">
                 <ChefHat className="text-primary-foreground" />
@@ -183,7 +183,7 @@ export default function RestaurantDetailPage() {
                 <p className="font-bold">Rp 25.000</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" className="relative bg-background/20 hover:bg-background/30 rounded-full h-12 w-12">
+            <Button variant="ghost" size="icon" className="relative bg-background/20 hover:bg-background/30 rounded-xl h-12 w-12">
               <ShoppingCart />
               <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0">1</Badge>
             </Button>
