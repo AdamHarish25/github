@@ -175,12 +175,12 @@ export function SignupForm() {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
-           <Button variant="outline" disabled={true}>
-             <Icons.Google className="mr-2 h-4 w-4" />
+           <Button variant="outline" onClick={() => socialLogin('google')} disabled={isSocialLoading === 'google' || !auth}>
+             {isSocialLoading === 'google' ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : <Icons.Google className="mr-2 h-4 w-4" />}
             Google
           </Button>
-          <Button variant="outline" disabled={true}>
-            <Icons.Outlook className="mr-2 h-4 w-4" />
+          <Button variant="outline" onClick={() => socialLogin('microsoft')} disabled={isSocialLoading === 'microsoft' || !auth}>
+            {isSocialLoading === 'microsoft' ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : <Icons.Outlook className="mr-2 h-4 w-4" />}
             Outlook
           </Button>
         </div>
