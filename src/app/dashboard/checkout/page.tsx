@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -62,6 +63,7 @@ const paymentMethods = [
 export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState(orderedItems);
   const [selectedPayment, setSelectedPayment] = useState('qris');
+  const router = useRouter();
 
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -84,6 +86,10 @@ export default function CheckoutPage() {
         )
       );
     }
+  };
+
+  const handlePayNow = () => {
+    router.push('/dashboard/checkout/success');
   };
 
   return (
@@ -224,7 +230,7 @@ export default function CheckoutPage() {
                  <p className="text-muted-foreground text-sm">Total Price</p>
                  <p className="font-bold text-xl">{formatPrice(totalPrice)}</p>
             </div>
-          <Button size="lg" className="w-1/2 rounded-full">
+          <Button size="lg" className="w-1/2 rounded-full" onClick={handlePayNow}>
             Pay now
           </Button>
         </div>
