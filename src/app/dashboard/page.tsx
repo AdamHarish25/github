@@ -1,27 +1,28 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
+import { useUser, useAuth as useFirebaseAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
-import { auth } from '@/lib/firebase/config';
 import { signOut } from 'firebase/auth';
 import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, Atom } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, isUserLoading } = useUser();
+  const auth = useFirebaseAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isUserLoading && !user) {
       router.replace('/login');
     }
-  }, [user, loading, router]);
+  }, [user, isUserLoading, router]);
 
   const handleSignOut = async () => {
+    if (!auth) return;
     try {
       await signOut(auth);
       router.replace('/login');
@@ -30,7 +31,7 @@ export default function DashboardPage() {
     }
   };
 
-  if (loading || !user) {
+  if (isUserLoading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
         <Card className="w-full max-w-md">
@@ -71,7 +72,7 @@ export default function DashboardPage() {
           <p className="text-muted-foreground text-sm">You have successfully logged in.</p>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleSignOut} className="w-full" variant="outline">
+          <Button onClick={handleSignOut} className="w-full" variant="outline" disabled={!auth}>
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </Button>

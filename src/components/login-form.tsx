@@ -27,7 +27,7 @@ import {
   GoogleAuthProvider,
   OAuthProvider,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase/config";
+import { useAuth } from "@/firebase";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -37,6 +37,7 @@ const formSchema = z.object({
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const auth = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSocialLoading, setIsSocialLoading] = React.useState<string | null>(null);
@@ -50,6 +51,7 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!auth) return;
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
@@ -70,6 +72,7 @@ export function LoginForm() {
   }
 
   const socialLogin = async (providerName: 'google' | 'microsoft') => {
+    if (!auth) return;
     setIsSocialLoading(providerName);
     try {
         let provider;
@@ -137,7 +140,7 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || !auth}>
               {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
               Log In
             </Button>
@@ -150,11 +153,11 @@ export function LoginForm() {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline" onClick={() => socialLogin('google')} disabled={!!isSocialLoading}>
+          <Button variant="outline" onClick={() => socialLogin('google')} disabled={!!isSocialLoading || !auth}>
              {isSocialLoading === 'google' ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : <Icons.Google className="mr-2 h-4 w-4" />}
             Google
           </Button>
-          <Button variant="outline" onClick={() => socialLogin('microsoft')} disabled={!!isSocialLoading}>
+          <Button variant="outline" onClick={() => socialLogin('microsoft')} disabled={!!isSocialLoading || !auth}>
             {isSocialLoading === 'microsoft' ? <Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> : <Icons.Outlook className="mr-2 h-4 w-4" />}
             Outlook
           </Button>

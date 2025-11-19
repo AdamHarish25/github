@@ -21,7 +21,7 @@ import { Icons } from "@/components/icons";
 import { Mail, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/lib/firebase/config";
+import { useAuth } from "@/firebase";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -29,6 +29,7 @@ const formSchema = z.object({
 
 export function ForgotPasswordForm() {
   const router = useRouter();
+  const auth = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
@@ -41,6 +42,7 @@ export function ForgotPasswordForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!auth) return;
     setIsLoading(true);
     try {
       await sendPasswordResetEmail(auth, values.email);
@@ -107,7 +109,7 @@ export function ForgotPasswordForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || !auth}>
               {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
               Send Reset Link
             </Button>

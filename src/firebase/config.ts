@@ -1,8 +1,8 @@
 export const firebaseConfig = {
-  "projectId": "studio-9024447289-b6742",
-  "appId": "1:806331593682:web:cf7142c591b50f6d554e0b",
-  "apiKey": "AIzaSyCyGmi2ebXSWv1Be33YoBiR_uAhKFm2OJ8",
-  "authDomain": "studio-9024447289-b6742.firebaseapp.com",
-  "measurementId": "",
-  "messagingSenderId": "806331593682"
+  "projectId": "kivo-3453a",
+  "appId": "1:652233832863:web:03f0b2f90a5f9b48b6f368",
+  "storageBucket": "kivo-3453a.appspot.com",
+  "apiKey": "AIzaSyDFfG2J682AACATH1gJg85n2YkMv9n_1-Y",
+  "authDomain": "kivo-3453a.firebaseapp.com",
+  "messagingSenderId": "652233832863"
 };
